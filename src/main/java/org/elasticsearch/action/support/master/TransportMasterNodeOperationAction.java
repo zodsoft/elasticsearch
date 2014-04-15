@@ -124,7 +124,7 @@ public abstract class TransportMasterNodeOperationAction<Request extends MasterN
                         }, new ClusterStateObserver.ValidationPredicate() {
                             @Override
                             protected boolean validate(ClusterState newState) {
-                                ClusterBlockException blockException = checkBlock(request, clusterService.state());
+                                ClusterBlockException blockException = checkBlock(request, newState);
                                 return (blockException == null || !blockException.retryable());
                             }
                         }
