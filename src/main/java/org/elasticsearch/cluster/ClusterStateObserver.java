@@ -180,10 +180,14 @@ public class ClusterStateObserver {
                 if (observingContext.compareAndSet(context, null)) {
                     clusterService.remove(this);
                     ObservedState state = new ObservedState(event.state());
-                    logger.trace("observer: accepting cluster state change (version [{}], status [{})", state.clusterState.version(), state.status);
+                    logger.trace("observer: accepting cluster state change ({})", state);
                     lastObservedState.set(state);
                     context.listener.onNewClusterState(state.clusterState);
+                } else {
+                    logger.trace("observer: predicate approved change but observing context has changed - ignoring (new cluster state version [{}])", event.state().version());
                 }
+            } else {
+                logger.trace("observer: predicate rejected change (new cluster state version [{}])", event.state().version());
             }
         }
 
@@ -203,7 +207,11 @@ public class ClusterStateObserver {
                     clusterService.remove(this);
                     lastObservedState.set(newState);
                     context.listener.onNewClusterState(newState.clusterState);
+                } else {
+                    logger.trace("observer: postAdded - predicate approved state but observing context has changed - ignoring ({})", newState);
                 }
+            } else {
+                logger.trace("observer: postAdded - predicate rejected state ({})", newState);
             }
         }
 
@@ -278,7 +286,7 @@ public class ClusterStateObserver {
         @Override
         public boolean apply(ClusterChangedEvent changedEvent) {
             if (changedEvent.previousState().version() != changedEvent.state().version()) {
-                validate(changedEvent.state());
+                return validate(changedEvent.state());
             }
             return false;
         }
