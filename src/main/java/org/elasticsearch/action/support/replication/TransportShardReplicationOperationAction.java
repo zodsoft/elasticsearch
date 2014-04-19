@@ -677,7 +677,7 @@ public abstract class TransportShardReplicationOperationAction<Request extends S
 
             final ReplicaOperationRequest shardRequest = new ReplicaOperationRequest(shardIt.shardId().id(), response.replicaRequest());
             if (!nodeId.equals(observer.observedState().nodes().localNodeId())) {
-                DiscoveryNode node = observer.observedState().nodes().get(nodeId);
+                final DiscoveryNode node = observer.observedState().nodes().get(nodeId);
                 transportService.sendRequest(node, transportReplicaAction, shardRequest, transportOptions, new EmptyTransportResponseHandler(ThreadPool.Names.SAME) {
                     @Override
                     public void handleResponse(TransportResponse.Empty vResponse) {
