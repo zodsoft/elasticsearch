@@ -64,6 +64,7 @@ import org.elasticsearch.index.translog.Translog;
 import org.elasticsearch.index.translog.TranslogSizeMatcher;
 import org.elasticsearch.index.translog.fs.FsTranslog;
 import org.elasticsearch.test.ElasticsearchTestCase;
+import org.elasticsearch.test.junit.annotations.TestLogging;
 import org.elasticsearch.threadpool.ThreadPool;
 import org.hamcrest.MatcherAssert;
 import org.junit.After;
@@ -84,6 +85,7 @@ import static org.hamcrest.Matchers.*;
 /**
  *
  */
+@TestLogging("index.engine:TRACE")
 public class InternalEngineTests extends ElasticsearchTestCase {
 
     protected final ShardId shardId = new ShardId(new Index("index"), 1);

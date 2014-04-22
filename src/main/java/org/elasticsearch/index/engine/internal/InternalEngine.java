@@ -397,6 +397,8 @@ public class InternalEngine extends AbstractIndexShardComponent implements Engin
             if (versionValue == null) {
                 currentVersion = loadCurrentVersionFromIndex(create.uid());
             } else {
+                logger.trace("creating {}, found version {} of {} in version map", create.id(), versionValue.version(), versionValue.time);
+
                 if (enableGcDeletes && versionValue.delete() && (threadPool.estimatedTimeInMillis() - versionValue.time()) > gcDeletesInMillis) {
                     currentVersion = Versions.NOT_FOUND; // deleted, and GC
                 } else {
@@ -407,6 +409,9 @@ public class InternalEngine extends AbstractIndexShardComponent implements Engin
             // same logic as index
             long updatedVersion;
             long expectedVersion = create.version();
+            if (logger.isTraceEnabled()) {
+                logger.trace("creating {}, current version: {}, expected version: {}", create.id(), currentVersion, expectedVersion);
+            }
             if (create.versionType().isVersionConflict(currentVersion, expectedVersion)) {
                 if (create.origin() == Operation.Origin.RECOVERY) {
                     return;
@@ -475,15 +480,18 @@ public class InternalEngine extends AbstractIndexShardComponent implements Engin
             if (versionValue == null) {
                 currentVersion = loadCurrentVersionFromIndex(index.uid());
             } else {
+                logger.trace("indexing {}, found version {} of {} in version map", index.id(), versionValue.version(), versionValue.time);
                 if (enableGcDeletes && versionValue.delete() && (threadPool.estimatedTimeInMillis() - versionValue.time()) > gcDeletesInMillis) {
                     currentVersion = Versions.NOT_FOUND; // deleted, and GC
                 } else {
                     currentVersion = versionValue.version();
                 }
             }
-
             long updatedVersion;
             long expectedVersion = index.version();
+            if (logger.isTraceEnabled()) {
+                logger.trace("indexing {}, current version: {}, expected version: {}", index.id(), currentVersion, expectedVersion);
+            }
             if (index.versionType().isVersionConflict(currentVersion, expectedVersion)) {
                 if (index.origin() == Operation.Origin.RECOVERY) {
                     return;
@@ -546,6 +554,8 @@ public class InternalEngine extends AbstractIndexShardComponent implements Engin
             if (versionValue == null) {
                 currentVersion = loadCurrentVersionFromIndex(delete.uid());
             } else {
+                logger.trace("deleting {}, found version {} of {} in version map", delete.id(), versionValue.version(), versionValue.time);
+
                 if (enableGcDeletes && versionValue.delete() && (threadPool.estimatedTimeInMillis() - versionValue.time()) > gcDeletesInMillis) {
                     currentVersion = Versions.NOT_FOUND; // deleted, and GC
                 } else {
@@ -555,6 +565,9 @@ public class InternalEngine extends AbstractIndexShardComponent implements Engin
 
             long updatedVersion;
             long expectedVersion = delete.version();
+            if (logger.isTraceEnabled()) {
+                logger.trace("deleting {}, current version: {}, expected version: {}", delete.id(), currentVersion, expectedVersion);
+            }
             if (delete.versionType().isVersionConflict(currentVersion, expectedVersion)) {
                 if (delete.origin() == Operation.Origin.RECOVERY) {
                     return;
