@@ -481,7 +481,10 @@ public class InternalEngine extends AbstractIndexShardComponent implements Engin
                 currentVersion = loadCurrentVersionFromIndex(index.uid());
             } else {
                 logger.trace("indexing {}, found version {} of {} in version map", index.id(), versionValue.version(), versionValue.time);
-                if (enableGcDeletes && versionValue.delete() && (threadPool.estimatedTimeInMillis() - versionValue.time()) > gcDeletesInMillis) {
+                long et = threadPool.estimatedTimeInMillis();
+                long vt = versionValue.time();
+                logger.trace("estimated time: {}, version time {}, diff: {},  gcDelete: {}", et, vt, et - vt, gcDeletesInMillis);
+                if (enableGcDeletes && versionValue.delete() && (et - vt) > gcDeletesInMillis) {
                     currentVersion = Versions.NOT_FOUND; // deleted, and GC
                 } else {
                     currentVersion = versionValue.version();
